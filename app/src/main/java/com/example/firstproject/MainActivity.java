@@ -2,6 +2,7 @@ package com.example.firstproject;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,13 +15,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button addButton=findViewById(R.id.addButton);
-        addButton.setOnClickListener(this::btnAddExclamantionClick);
+        Button addButton=findViewById(R.id.calcButton);
+        addButton.setOnClickListener(this::btnCalcClick);
+
+        findViewById(R.id.exitButton).setOnClickListener(this::btnExitClick);
     }
-    private void btnAddExclamantionClick(View v){
-        TextView tvHello=findViewById(R.id.tvHello);
-        String txt=tvHello.getText().toString();
-        txt+="!";
-        tvHello.setText(txt);
+    private void btnCalcClick(View v){
+        Intent calcIntent=new Intent(MainActivity.this,CalcActivity.class);
+        startActivity(calcIntent);
+    }
+    private void btnExitClick(View v){
+        finish();
     }
 }
