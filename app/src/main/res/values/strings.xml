@@ -4,6 +4,10 @@
     <string name="btn_calc_text">Calculator</string>
     <string name="btn_exit_text">Exit App</string>
 
+    <!-- Currency Activity-->
+    <string name="btn_rates_text">Currency rates</string>
+    <string name="tv_rates_title">Currency rates</string>
+
     <!-- Calc Activity-->
     <string name="btn_percent_text">%</string>
 

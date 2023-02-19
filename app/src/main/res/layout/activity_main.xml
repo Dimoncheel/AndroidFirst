@@ -31,6 +31,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_calc_text" />
+
+        <Button
+            android:id="@+id/ratesButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:text="@string/btn_rates_text" />
         <Button
             android:id="@+id/exitButton"
             android:layout_width="wrap_content"

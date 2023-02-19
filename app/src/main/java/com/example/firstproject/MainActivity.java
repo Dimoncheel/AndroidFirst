@@ -19,10 +19,16 @@ public class MainActivity extends AppCompatActivity {
         addButton.setOnClickListener(this::btnCalcClick);
 
         findViewById(R.id.exitButton).setOnClickListener(this::btnExitClick);
+        findViewById(R.id.ratesButton).setOnClickListener(this::btnRatesClick);
     }
     private void btnCalcClick(View v){
         Intent calcIntent=new Intent(MainActivity.this,CalcActivity.class);
         startActivity(calcIntent);
+    }
+
+    private void btnRatesClick(View v){
+        Intent ratesIntent=new Intent(MainActivity.this,RatesActivity.class);
+        startActivity(ratesIntent);
     }
     private void btnExitClick(View v){
         finish();
