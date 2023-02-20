@@ -10,7 +10,6 @@
 
     <!-- Calc Activity-->
     <string name="btn_percent_text">%</string>
-
     <string name="btn_calc_percent">%</string>
     <string name="btn_calc_clearE">CE</string>
     <string name="btn_calc_clearAll">C</string>
@@ -36,6 +35,9 @@
     <string name="btn_calc_7">7</string>
     <string name="btn_calc_8">8</string>
     <string name="btn_calc_9">9</string>
+
+    <string name="calc_minus_sign">\u2212</string>
+    <string name="calc_divide_by_zero">Cannot divide by zero</string>
 
     <!-- Chat Activity-->
     <string name="btn_chat_text">Chat</string>

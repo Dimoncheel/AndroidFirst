@@ -45,15 +45,13 @@
             android:layout_weight="1">
 
             <Button
-                android:id="@+id/button_clear_e"
-                style="@style/FnCalcButton"
-                android:text="@string/btn_calc_clearE" />
-
-            <Button
                 android:id="@+id/button_percent"
                 style="@style/FnCalcButton"
                 android:text="@string/btn_percent_text" />
-
+            <Button
+                android:id="@+id/button_clear_e"
+                style="@style/FnCalcButton"
+                android:text="@string/btn_calc_clearE" />
             <Button
                 android:id="@+id/button_clear_all"
                 style="@style/FnCalcButton"
