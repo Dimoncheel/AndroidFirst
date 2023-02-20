@@ -1,9 +1,14 @@
 package com.example.firstproject;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -75,7 +80,7 @@ public class RatesActivity extends AppCompatActivity {
         runOnUiThread(this::showContent);
     }
 
-    private void showContent(){
+    private void showContentTxt(){
         StringBuilder sb=new StringBuilder();
         for (Rate obj:rates
              ) {
@@ -86,6 +91,38 @@ public class RatesActivity extends AppCompatActivity {
         }
         content=sb.toString();
         tvContent.setText(content);
+    }
+    private void showContent(){
+        LinearLayout ratesContainer=findViewById(R.id.rates_container);
+        Drawable rateBg= AppCompatResources.getDrawable(getApplicationContext(),R.drawable.rates_shape);
+        Drawable rateBg_r= AppCompatResources.getDrawable(getApplicationContext(),R.drawable.rates_shape_r);
+        LinearLayout.LayoutParams rareParams=new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        rareParams.setMargins(10,7,10,7);
+
+        LinearLayout.LayoutParams rateParams=new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        rateParams.gravity=Gravity.RIGHT;
+        rateParams.setMargins(10,7,12,7);
+        int i=0;
+        for(Rate rate:this.rates){
+            TextView tvRate=new TextView(this);
+            tvRate.setText(rate.getTxt()+" "+Double.toString(rate.getRate()));
+            if(i==0){
+                tvRate.setBackground(rateBg);
+                tvRate.setPadding(15,5,15,5);
+                tvRate.setLayoutParams(rareParams);
+                ratesContainer.addView(tvRate);
+                i++;
+            }
+            else if(i==1){
+                tvRate.setBackground(rateBg_r);
+                tvRate.setPadding(15,5,15,5);
+                tvRate.setLayoutParams(rateParams);
+                ratesContainer.addView(tvRate);
+                i--;
+            }
+        }
     }
     static class Rate {
         private int r030;

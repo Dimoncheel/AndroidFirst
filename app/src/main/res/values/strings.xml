@@ -36,4 +36,11 @@
     <string name="btn_calc_7">7</string>
     <string name="btn_calc_8">8</string>
     <string name="btn_calc_9">9</string>
+
+    <!-- Chat Activity-->
+    <string name="btn_chat_text">Chat</string>
+    <string name="chat_user_name_title">User:</string>
+    <string name="chat_default_user">Umorist</string>
+    <string name="chat_message_title">Msg:</string>
+    <string name="chat_default_message">Shalom</string>
 </resources>

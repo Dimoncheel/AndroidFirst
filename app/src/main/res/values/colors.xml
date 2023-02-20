@@ -24,4 +24,12 @@
     <color name="calc_btn_equal_text">#0A1968</color>
     <color name="calc_btn_equal_border">#2196F3</color>
     <color name="calc_btn_equal_bg">#4CC1FE</color>
+
+    <!-- Rates colors -->
+
+    <color name="rate_bg_color_l">#F1C2C2</color>
+    <color name="rate_bg_color_r">#BA4F4F</color>
+
+    <!-- Chat colors -->
+    <color name="chat_frame_border">#234A7A</color>
 </resources>
