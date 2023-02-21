@@ -32,4 +32,6 @@
 
     <!-- Chat colors -->
     <color name="chat_frame_border">#234A7A</color>
+    <color name="chat_other_bg">#C465E6</color>
+    <color name="chat_me_bg">#E0A9F3</color>
 </resources>

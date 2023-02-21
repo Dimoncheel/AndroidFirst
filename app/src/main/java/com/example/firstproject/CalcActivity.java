@@ -42,6 +42,8 @@ public class CalcActivity extends AppCompatActivity {
                             getPackageName()
                     ) ).setOnClickListener( this::digitClick ) ;
         }
+        findViewById(R.id.button_comma).setOnClickListener(this::digitClick);
+        findViewById(R.id.button_squared).setOnClickListener(this::btnSquaredClick);
         findViewById( R.id.button_plus_minus ).setOnClickListener( this::pmClick ) ;
         findViewById( R.id.button_backspace ).setOnClickListener( this::backspaceClick ) ;
         findViewById( R.id.button_inverse ).setOnClickListener( this::inverseClick ) ;
@@ -102,6 +104,13 @@ public class CalcActivity extends AppCompatActivity {
         operation = "\u221A" ;
         operand1 = parseResult(result) ;
     }
+    private  void btnSquaredClick(View v){
+        String result = tvResult.getText().toString() ;
+        String history = String.format( "sqr(%s)",result) ;
+        tvHistory.setText( history ) ;
+        operation = "sqr" ;
+        operand1 = parseResult(result) ;
+    }
 
     private void digitClick( View v ) {
         String result = tvResult.getText().toString() ;
@@ -134,7 +143,7 @@ public class CalcActivity extends AppCompatActivity {
         showResult( 1 / arg ) ;
     }
     private double parseResult( String result ) {
-        return Double.parseDouble( result.replace( minusSign, "-" ) ) ;
+        return Double.parseDouble( result.replace( minusSign, "-" ).replace(",",".") ) ;
     }
     private void showResult( double arg ) {
         String result = String.valueOf( arg ) ;
@@ -198,10 +207,18 @@ public class CalcActivity extends AppCompatActivity {
         if(operation.equals("\u221a")){
             if(operand1>=0){
                 showResult(Math.sqrt(operand1));
+                needClearResult = true ;
+                needClearHistory = true ;
             }
             else{
-
+                Toast.makeText(this,"Negative number",Toast.LENGTH_SHORT).show();
             }
+            return;
+        }
+        if(operation.equals("sqr")){
+            showResult(Math.pow(operand1,2));
+            needClearResult = true ;
+            needClearHistory = true ;
             return;
         }
         String result  = tvResult.getText().toString() ;
@@ -211,6 +228,22 @@ public class CalcActivity extends AppCompatActivity {
         if( operation.equals( getString( R.string.btn_calc_plus ) ) ) {
             showResult( operand1 + operand2 ) ;
         }
+        if(operation.equals(getString(R.string.btn_calc_minus))){
+            showResult(operand1-operand2);
+        }
+        if(operation.equals(getString(R.string.btn_calc_multiplication))){
+            showResult(operand1*operand2);
+        }
+        if(operation.equals(getString(R.string.btn_calc_divide)))
+        {
+            if(operand2!=0){
+                showResult(operand1/operand2);
+            }
+            else{
+                Toast.makeText(this,"Divide by zero",Toast.LENGTH_SHORT).show();
+            }
+        }
+
 
         needClearResult = true ;
         needClearHistory = true ;
