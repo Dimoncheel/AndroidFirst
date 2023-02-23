@@ -21,10 +21,17 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.exitButton).setOnClickListener(this::btnExitClick);
         findViewById(R.id.ratesButton).setOnClickListener(this::btnRatesClick);
         findViewById(R.id.chatButton).setOnClickListener(this::btnChatClick);
+        findViewById(R.id.gameButton).setOnClickListener(this::btnGameClick);
     }
     private void btnCalcClick(View v){
         Intent calcIntent=new Intent(MainActivity.this,CalcActivity.class);
         startActivity(calcIntent);
+    }
+    private void btnGameClick( View v ) {
+        Intent gameIntent = new Intent(
+                MainActivity.this,
+                GameActivity.class ) ;
+        startActivity( gameIntent ) ;
     }
 
     private void btnRatesClick(View v){

@@ -3,6 +3,7 @@
     <string name="main_hello_text">Android Basics</string>
     <string name="btn_calc_text">Calculator</string>
     <string name="btn_exit_text">Exit App</string>
+    <string name="btn_game_text">Game 2048</string>
 
     <!-- Currency Activity-->
     <string name="btn_rates_text">Currency rates</string>
