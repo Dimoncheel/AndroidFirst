@@ -24,8 +24,10 @@ import java.util.List;
 import java.util.Random;
 
 public class GameActivity extends AppCompatActivity {
-    private final int[][] cells = new int[4][4] ;
-    private final TextView[][] tvCells = new TextView[4][4] ;
+    private int[][] cells = new int[4][4] ;
+    private int[][] copy_cells = new int[4][4] ;
+    private  TextView[][] tvCells = new TextView[4][4] ;
+    private  TextView[][] copy_tvCells = new TextView[4][4] ;
     private final Random random = new Random() ;
     private Animation spawnCellAnimation ;
     private int score ;
@@ -66,6 +68,7 @@ public class GameActivity extends AppCompatActivity {
         }
 
 
+
         findViewById( R.id.game_layout )
                 .setOnTouchListener( new OnSwipeListener( GameActivity.this ) {
                     @Override
@@ -80,21 +83,53 @@ public class GameActivity extends AppCompatActivity {
                     }
                     @Override
                     public void onSwipeTop() {
-                        Toast.makeText(GameActivity.this, "Top", Toast.LENGTH_SHORT).show();
+                        if(moveTop()) spawnCell();
+                        else Toast.makeText(GameActivity.this, "Top", Toast.LENGTH_SHORT).show();
                     }
                     @Override
                     public void onSwipeBottom() {
-                        Toast.makeText(GameActivity.this, "Bottom", Toast.LENGTH_SHORT).show();
+                        if(moveBottom()) spawnCell();
+                        else Toast.makeText(GameActivity.this, "Bottom", Toast.LENGTH_SHORT).show();
                     }
                 } ) ;
         findViewById( R.id.game_start_new )
                 .setOnClickListener( this::newGameClick ) ;
-
+        findViewById(R.id.btn_undo).setOnClickListener(this::undo);
         startNewGame() ;
     }
+    private TextView[][] copy(TextView[][] src) {
+        if (src == null) {
+            return null;
+        }
 
+        TextView[][] copy = new TextView[src.length][];
+        for (int i = 0; i < src.length; i++) {
+            copy[i] = src[i].clone();
+        }
+
+        return copy;
+    }
+
+    private int[][] copy(int[][] src) {
+        if (src == null) {
+            return null;
+        }
+
+        int[][] copy = new int[src.length][];
+        for (int i = 0; i < src.length; i++) {
+            copy[i] = src[i].clone();
+        }
+
+        return copy;
+    }
+
+    private void undo(View v){
+        cells=copy_cells;
+        tvCells=copy_tvCells;
+        showField();
+    }
     private void newGameClick( View v ) {
-
+        startNewGame();
     }
 
     private boolean saveBestScore() {
@@ -127,7 +162,7 @@ public class GameActivity extends AppCompatActivity {
     private boolean isWin() {
         for( int i = 0; i < 4; ++i ) {
             for( int j = 0; j < 4; ++j ) {
-                if( cells[i][j] == 8 ) {
+                if( cells[i][j] == 2048 ) {
                     return true ;
                 }
             }
@@ -167,6 +202,8 @@ public class GameActivity extends AppCompatActivity {
 
         spawnCell() ;
         spawnCell() ;
+        copy_cells=copy(copy_cells);
+        copy_tvCells=copy(tvCells);
     }
 
 
@@ -242,7 +279,8 @@ public class GameActivity extends AppCompatActivity {
     private boolean moveLeft() {
         boolean result = false ;
         boolean needRepeat ;
-
+        copy_cells=copy(copy_cells);
+        copy_tvCells=copy(tvCells);
         for( int i = 0; i < 4; ++i ) {
             do {
                 needRepeat = false ;
@@ -274,12 +312,14 @@ public class GameActivity extends AppCompatActivity {
                 }
             }
         }
+
         return result ;
     }
     private boolean moveRight() {
         boolean result = false ;
         boolean needRepeat ;
-
+        copy_cells=copy(copy_cells);
+        copy_tvCells=copy(tvCells);
         for( int i = 0; i < 4; ++i ) {
             do {
                 needRepeat = false ;
@@ -308,6 +348,83 @@ public class GameActivity extends AppCompatActivity {
                     cells[i][0] = 0 ;
                     result = true ;
                     score += cells[i][j] ;
+                }
+            }
+        }
+        return result ;
+    }
+
+    private boolean moveBottom() {
+        boolean result = false ;
+        boolean needRepeat ;
+        copy_cells=copy(copy_cells);
+        copy_tvCells=copy(tvCells);
+        for( int i = 0; i < 4; ++i ) {
+            do {
+                needRepeat = false ;
+                for( int j = 3; j > 0; --j ) {
+                    if( cells[j][i] == 0 ) {
+                        for( int k = j - 1; k >= 0; --k ) {
+                            if( cells[k][i] != 0 ) {
+                                cells[j][i] = cells[k][i] ;
+                                cells[k][i] = 0 ;
+                                needRepeat = true ;
+                                result = true ;
+                                break ;
+                            }
+                        }
+                    }
+                }
+            } while( needRepeat ) ;
+
+
+            for( int j = 3; j > 0; --j ) {
+                if( cells[j][i] != 0 && cells[j][i] == cells[j-1][i] ) {
+                    cells[j][i] *= 2 ;
+                    for( int k = j - 1; k > 0; --k ) {
+                        cells[k][i] = cells[k-1][i] ;
+                    }
+                    cells[0][i] = 0 ;
+                    result = true ;
+                    score += cells[j][i] ;
+                }
+            }
+        }
+        return result ;
+    }
+    private boolean moveTop() {
+        boolean result = false ;
+        boolean needRepeat ;
+        copy_cells=copy(copy_cells);
+        copy_tvCells=copy(tvCells);
+        for( int i = 0; i < 4; ++i ) {
+            do {
+                needRepeat = false ;
+                for( int j = 0; j < 3; ++j ) {
+                    if( cells[j][i] == 0 ) {
+                        for( int k = j + 1; k < 4; ++k ) {
+                            if( cells[k][i] != 0 ) {
+                                cells[j][i] = cells[k][i] ;
+                                cells[k][i] = 0 ;
+                                needRepeat = true ;
+                                result = true ;
+                                break ;
+                            }
+                        }
+                    }
+                }
+            } while( needRepeat ) ;
+
+
+            for( int j = 0; j < 3; ++j ) {
+                if( cells[j][i] != 0 && cells[j][i] == cells[j+1][i] ) {
+                    cells[j][i] *= 2 ;
+                    for( int k = j + 1; k < 3; ++k ) {
+                        cells[k][i] = cells[k+1][i] ;
+                    }
+                    cells[3][i] = 0 ;
+                    result = true ;
+                    score += cells[j][i] ;
                 }
             }
         }
