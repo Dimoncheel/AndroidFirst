@@ -1,15 +1,28 @@
 package com.example.firstproject;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +41,8 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -36,13 +51,17 @@ import java.util.UUID;
 public class ChatActivity extends AppCompatActivity {
     private final String CHAT_URL="https://diorama-chat.ew.r.appspot.com/story";
     private String content;
+    private final String CHANNEL_ID="CHAT_NOTIFY";
+    private Handler handler;
 
+    private MediaPlayer incomingMessagePlayer;
     private ChatMessage userMessage;
     private LinearLayout chatContainer;
     private List<ChatMessage> msgs;
 
     private EditText etUserName;
     private EditText etUserMassege;
+    private ScrollView svContainer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,8 +69,20 @@ public class ChatActivity extends AppCompatActivity {
         chatContainer=findViewById(R.id.chat_container);
         etUserName=findViewById(R.id.et_chat_user_name);
         etUserMassege=findViewById(R.id.et_chat_message);
+        this.handler=new Handler();
+        this.handler.post(this::updateChat);
+        //handler.postDelayed(this::showNotification,3000);
         findViewById(R.id.btn_chat_send).setOnClickListener(this::sendBtnClick);
+        svContainer=findViewById(R.id.sv_container);
+        msgs=new ArrayList<>();
+
+        this.incomingMessagePlayer=MediaPlayer.create(this,R.raw.sound_1);
+        //new Thread(this::loadUrl).start();
+    }
+
+    private void updateChat(){
         new Thread(this::loadUrl).start();
+        this.handler.postDelayed(this::updateChat,3000);
     }
 
     private void sendBtnClick(View v){
@@ -133,16 +164,18 @@ public class ChatActivity extends AppCompatActivity {
     private void parseContent(){
         try{
             JSONObject array=new JSONObject(content);
-            msgs=new ArrayList<>();
 
             if(array.getString("status").contains("success")){
                 JSONArray tmp=array.getJSONArray("data");
                 int len=tmp.length();
                 for(int i=0;i<len;++i){
-                    msgs.add(new ChatMessage(tmp.getJSONObject(i)));
-
+                    ChatMessage tmp1=new ChatMessage(tmp.getJSONObject(i));
+                    if(this.msgs.stream().noneMatch(cm->cm.getId().equals(tmp1.getId()))){
+                        this.msgs.add(tmp1);
+                    }
                 }
             }
+            this.msgs.sort(Comparator.comparing(ChatMessage::getDate));
             runOnUiThread(this::showChatMessage);
         }
         catch (JSONException ex){
@@ -150,6 +183,23 @@ public class ChatActivity extends AppCompatActivity {
         }
 
     }
+
+    private String CheckDate(Date date){
+        String[] msgDate=date.toString().split(" ");
+        String[] nowDate=new Date().toString().split(" ");
+        System.out.println(msgDate[1]);
+        System.out.println(nowDate[1]);
+        if(msgDate[1].equals(nowDate[1])
+                &&msgDate[2].equals(nowDate[2])
+                &&msgDate[5].equals(nowDate[5])){
+
+            return msgDate[3];
+        }
+        else{
+            return date.toString();
+        }
+    }
+
     private void showChatMessage(){
         LinearLayout chatContainer=findViewById(R.id.chat_container);
         Drawable otherBg= AppCompatResources.getDrawable(getApplicationContext(),R.drawable.chat_other_bg);
@@ -164,28 +214,91 @@ public class ChatActivity extends AppCompatActivity {
 
         meParams.setMargins(10,7,12,7);
         int i=0;
+        boolean needScroll=false;
         for(ChatMessage msg:this.msgs){
+            if(msg.getView()!=null)continue;
             TextView tvChat=new TextView(this);
-            tvChat.setText(msg.getDate()+":"+msg.getAuthor()+"-"+msg.getText());
+            tvChat.setText(CheckDate(msg.getDate())+":"+msg.getAuthor()+"-"+msg.getText());
             if(msg.getAuthor().equals(etUserName.getText().toString())){
                 tvChat.setBackground(meBg);
                 tvChat.setPadding(15,5,15,5);
                 tvChat.setLayoutParams(meParams);
                 chatContainer.addView(tvChat);
-
+                msg.setView(tvChat);
+                tvChat.setTag(msg);
+                needScroll=true;
             }
             else{
                 tvChat.setBackground(otherBg);
                 tvChat.setPadding(15,5,15,5);
                 tvChat.setLayoutParams(otherParams);
                 chatContainer.addView(tvChat);
-
+                msg.setView(tvChat);
+                tvChat.setTag(msg);
+                needScroll=true;
             }
+        }
+        if(needScroll){
+            svContainer.post(()->svContainer.fullScroll(View.FOCUS_DOWN));
+            incomingMessagePlayer.start();
+        }
+    }
+
+
+    private void showNotification(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+        NotificationCompat.Builder builder=
+                new NotificationCompat.Builder(ChatActivity.this,CHANNEL_ID)
+                        .setSmallIcon(android.R.drawable.sym_def_app_icon)
+                        .setContentTitle("Chat")
+                        .setContentText("New message in chat")
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        Notification notification=builder.build();
+
+        NotificationManagerCompat notificationManager= NotificationManagerCompat.from(ChatActivity.this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                        ChatActivity.this,
+                        new String[]{android.Manifest.permission.POST_NOTIFICATIONS},
+                        10002
+                );
+                return;
+            }
+        }
+        notificationManager.notify(1002,notification);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,String[] permissions,int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode==10002){
+
         }
     }
 
     static class ChatMessage {
+        private View view; //ref to View on UI
         private UUID id;
+
+        public View getView() {
+            return view;
+        }
+
+        public void setView(View view) {
+            this.view = view;
+        }
+
         private String author;
         private String text;
         private Date date;
